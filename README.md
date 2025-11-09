@@ -17,6 +17,18 @@ Users can:
 
 ---
 
+## Demo
+
+<video src="https://github.com/Varun-Date98/docs-ai/blob/main/assets/recording.webm?raw=true"
+       width="700"
+       controls
+       muted
+       autoplay
+       loop>
+Your browser does not support the video tag.
+</video>
+---
+
 ## 🧩 Key Features
 
 - ⚙️ **Asynchronous File Ingestion**  
