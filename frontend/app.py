@@ -24,7 +24,7 @@ tab1, tab2 = st.tabs(["📄 Upload & Process", "💬 Chat"])
 # ========== TAB 1: UPLOAD ==========
 with tab1:
     st.header("Upload a document")
-    uploaded = st.file_uploader("Upload a file to add to the vector store", type=["txt", "md", "pdf"])
+    uploaded = st.file_uploader("Upload a file to add to the vector store", type=["txt", "ppt", "pptx", "md", "pdf"])
 
     if uploaded is not None:
         if st.button("Send to backend"):

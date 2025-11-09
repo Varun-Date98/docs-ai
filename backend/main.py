@@ -6,6 +6,10 @@ from contextlib import asynccontextmanager
 from datetime import date
 from http.client import HTTPException
 
+from io import BytesIO
+from pypdf import PdfReader
+from pptx import Presentation
+
 from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -48,7 +52,28 @@ def log_prompt(prompt):
     logger.info(f"Generated prompt for the question:\n{prompt}")
     return prompt
 
-def process_file(task_id: str, file_bytes: bytes, file_name: str = "upload"):
+def extract_text_from_pdf(file_bytes: bytes) -> str:
+    parts = []
+    reader = PdfReader(BytesIO(file_bytes))
+
+    for page in reader.pages:
+        text = page.extract_text() or ""
+        parts.append(text)
+
+    return "\n".join(parts)
+
+def extract_text_from_ppt(file_bytes: bytes) -> str:
+    parts = []
+    reader = Presentation(BytesIO(file_bytes))
+
+    for slide in reader.slides:
+        for shape in slide.shapes:
+            if hasattr(shape, "text") and shape.text:
+                parts.append(shape.text)
+
+    return "\n".join(parts)
+
+def process_file(task_id: str, data: str, file_name: str = "upload"):
     """
     Background task to chunk uploaded file and save it in vector store
 
@@ -61,11 +86,11 @@ def process_file(task_id: str, file_bytes: bytes, file_name: str = "upload"):
         Nothing, processes the file and updates task_id status internally
     """
     try:
+        TASKS[task_id] = {"status": "processing"}
         logger.info(f"Started processing task id: {task_id}, status: processing")
-        text = file_bytes.decode("utf-8", errors="ignore")
-        file = Document(page_content=text, metadata={"source": file_name})
+        file = Document(page_content=data, metadata={"source": file_name})
 
-        splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+        splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         documents = splitter.split_documents([file])
 
         app.state.vector_store.add_documents(documents)
@@ -98,13 +123,22 @@ app = FastAPI(title="Docs Agent", version="0.0.0.0", lifespan=lifespan)
 
 @app.post("/upload")
 async def file_upload(file: UploadFile = File(...)):
-    content = await file.read()
+    file_bytes = await file.read()
     file_name = file.filename
     task_id = str(uuid.uuid4())
     TASKS[task_id] = {"status": "accepted"}
     logger.info(f"Accepted task id: {task_id}, status: accepted")
 
-    thread = threading.Thread(target=process_file, args=(task_id, content, file_name))
+    ext = os.path.splitext(file_name)[1].lower()
+
+    if ext == ".pdf":
+        data = extract_text_from_pdf(file_bytes)
+    elif ext in (".ppt", ".pptx"):
+        data = extract_text_from_ppt(file_bytes)
+    else:
+        data = file_bytes.decode("utf-8", errors="ignore")
+
+    thread = threading.Thread(target=process_file, args=(task_id, data, file_name))
     thread.start()
 
     return JSONResponse(
