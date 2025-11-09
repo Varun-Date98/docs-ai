@@ -1,0 +1,16 @@
+requests
+streamlit
+streamlit-float
+
+fastapi
+uvicorn[standard]
+python-multipart
+
+openai
+chromadb
+
+langchain
+langchain-openai
+langchain-community
+
+pypdf
