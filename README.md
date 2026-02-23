@@ -1,4 +1,4 @@
-# 🧠 DocsAI — AI Meeting Assistant MVP
+# 🧠 DocsAI — AI Meeting Assistant
 *A lightweight, Retrieval-Augmented Generation (RAG) agent for understanding meeting notes and documents.*
 
 ---
@@ -7,7 +7,7 @@
 
 DocsAI is an **AI-powered meeting assistant** that ingests user-uploaded files (e.g., meeting notes, pitch deck) and enables **conversational Q&A** over their content.  
 
-It’s designed as a **minimal viable product (MVP)** to demonstrate backend architecture and agentic reasoning patterns for building features similar to *Zoom Docs* and *Zoom AI Companion*.
+It’s designed as a **minimal viable product (MVP)** to demonstrate backend architecture and agentic reasoning patterns for **RAG powered** meeting agent.
 
 Users can:
 - Upload documents asynchronously (`.txt`, `.ppt`, `.md`).
@@ -193,4 +193,4 @@ This MVP demonstrates **end-to-end ownership of an AI product feature** — from
 ---
 
 ## 🧾 License
-MIT License © 2025 [Your Name]
+MIT License © 2025
